@@ -46,7 +46,7 @@ app/
 
 tests/                          # Testes (pytest)
 Dockerfile                      # Build da imagem da API
-docker-compose.yml              # Sobe API + Ollama juntos
+docker-compose.yml              # Sobe a API em container (conecta no Ollama do host)
 ```
 
 ## Variáveis de ambiente
@@ -85,18 +85,15 @@ A API sobe em `http://localhost:8000` — docs interativas em `http://localhost:
 
 ## Rodando com Docker Compose
 
-O `docker-compose.yml` sobe a API e o Ollama juntos, cada um em seu container.
+O `docker-compose.yml` sobe só a API em container. O Ollama roda no host (fora do Docker) — o container acessa em `http://host.docker.internal:11434`.
 
 ```bash
-# 1. Subir os serviços (builda a imagem da API na primeira vez)
-docker compose up -d --build
+# Pré-requisito: Ollama rodando no host com os modelos já baixados (ver seção acima)
 
-# 2. Baixar os modelos dentro do container do Ollama (necessário uma única vez)
-docker compose exec ollama ollama pull nomic-embed-text
-docker compose exec ollama ollama pull qwen2.5:0.5b
+docker compose up -d --build
 ```
 
-A API fica disponível em `http://localhost:8000`. Os dados do ChromaDB são persistidos em `./chroma_db` (bind mount) e os modelos do Ollama no volume nomeado `ollama_data`.
+A API fica disponível em `http://localhost:8000`. Os dados do ChromaDB são persistidos em `./chroma_db` (bind mount).
 
 ## Endpoints
 
