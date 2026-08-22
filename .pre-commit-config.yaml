@@ -1,0 +1,46 @@
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: check-ast
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: no-commit-to-branch
+        args: ['-b', 'main', '-b', 'master', '-b', 'develop', '-b', 'quality', '-b', 'pprd']
+
+  - repo: https://github.com/psf/black
+    rev: 26.5.1
+    hooks:
+      - id: black
+        args: ['--line-length=91']
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 8.0.1
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.3.0
+    hooks:
+      - id: flake8
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.18.0
+    hooks:
+      - id: commitizen
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: bash -c 'poetry run pytest; code=$?; [ "$code" = 5 ] && exit 0 || exit $code'
+        language: system
+        pass_filenames: false
+        always_run: true

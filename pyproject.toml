@@ -14,6 +14,8 @@ dependencies = [
     "ollama (>=0.6.2,<0.7.0)"
 ]
 
+[tool.poetry]
+packages = [{include = "app"}]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -21,11 +23,57 @@ build-backend = "poetry.core.masonry.api"
 
 [dependency-groups]
 dev = [
-    "ruff (>=0.16.3,<0.17.0)"
+    "ruff (>=0.16.3,<0.17.0)",
+    "typos (>=1.49.0,<2.0.0)",
+    "pre-commit (>=4.6.2,<5.0.0)"
+]
+test = [
+    "pytest (>=9.1.1,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)"
 ]
 
 [tool.ruff.lint]
-select = ["I"]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'
 
 [tool.ruff.lint.isort]
-known-first-party = ["rag_api"]
+known-first-party = ["app"]
+
+[tool.ruff]
+line-length = 91
+extend-exclude = ['migrations']
+
+[tool.isort]
+profile = 'black'
+line_length = 91
+known_first_party = ['app']
+
+[tool.commitizen]
+name = 'cz_conventional_commits'
+version = '0.1.0'
+tag_format = 'v$version'
+
+[tool.pytest]
+pythonpath = ['.']
+addopts = ['-p', 'no:warnings', '--cov=app', '--cov-context=test']
+
+[tool.poe]
+poetry_command = ""
+
+[tool.poe.tasks]
+lint = { cmd = "ruff check" }
+format.sequence = [
+  { cmd = "ruff check --fix" },
+  { cmd = "ruff format" },
+]
+serve = "fastapi dev app/main.py"
+test.sequence = [
+  "lint",
+  { cmd = "pytest -s -x -vv $POE_EXTRA_ARGS" },
+  { cmd = "coverage html --show-contexts" },
+]
